@@ -1,0 +1,208 @@
+<html>
+
+<head>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Facial Emotion Recognition MXNet</title>
+    <link rel="icon" type="image/png" href="assets/images/ai_small.png">
+    <link rel="stylesheet" type="text/css" href="assets/css/ui-cropper.css" />
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link href="https://cdn.gitcdn.link/cdn/angular/bower-material/v1.1.8/angular-material.css" rel="stylesheet" />
+    <link href="https://material.angularjs.org/1.1.8/docs.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.min.css" />
+    <link rel="stylesheet" type="text/css" href="assets/css/styles.css" />
+    <link rel="stylesheet" type="text/css" href="assets/css/common.css" />
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.7/angular.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.7/angular-animate.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.7/angular-route.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.7/angular-aria.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.7/angular-messages.min.js"></script>
+    <script src="https://s3-us-west-2.amazonaws.com/s.cdpn.io/t-114/svg-assets-cache.js"></script>
+    <script src="https://cdn.gitcdn.link/cdn/angular/bower-material/v1.1.8/angular-material.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="assets/js/ng-file-upload.min.js"></script>
+    <script src="assets/js/ng-file-upload-shim.min.js"></script>
+    <script src="assets/js/ui-cropper.js"></script>
+    <script src="assets/js/script.js"></script>
+
+    <meta property="og:title" content="Facial Emotion Recognition with MXNet" />
+    <meta property="og:type" content="article" />
+    <meta property="og:description" content="This demo will detect the emotion in the faces using a deep neural network built with MXNet"/>
+    <meta property="og:url" content="https://thomasdelteil.github.io/FacialEmotionRecognition_MXNet/" />
+    <meta property="og:image" content="https://raw.githubusercontent.com/ThomasDelteil/FacialEmotionRecognition_MXNet/master/images/ai.png" />
+
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-118968561-3"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-118968561-3');
+    </script>
+</head>
+
+<body>
+    <div class="header">
+        <h1>
+            <img id="main_logo" src="assets/images/ai.png">Facial Emotion Recognition with
+            <a href="http://www.mxnet.io"><img id="logo_header" src="assets/images/mxnet_white.png"></a>
+        </h1>
+    </div>
+    <div ng-app="fileUpload" mat-app-background basic-container id="appContainer" ng-controller="fileController">
+        <form id="myForm" name="myForm">
+            <div ngf-drop ngf-drag="drag($isDragging, $class, $event)" id="dropArea" ng-model="picFile" ngf-pattern="image/jpeg" class="cropArea">
+                <div id="textInfo" class="centered">
+                    <span id="textInfoText">Drop picture or upload</span>
+                    <span id="textInfoText_mobile">Upload a picture &rarr;</span>
+                    <div ngf-select ng-model="picFile" ngf-capture="'camera'" accept="image/jpeg">
+                        <svg id="uploadIcon" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                            x="0px" y="0px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100;" xml:space="preserve">
+                            <path d="M50,40c-8.285,0-15,6.718-15,15c0,8.285,6.715,15,15,15c8.283,0,15-6.715,15-15,C65,46.718,58.283,40,50,40z M90,25H78c-1.65,0-3.428-1.28-3.949-2.846l-3.102-9.309C70.426,11.28,68.65,10,67,10H33,c-1.65,0-3.428,1.28-3.949,2.846l-3.102,9.309C25.426,23.72,23.65,25,22,25H10C4.5,25,0,29.5,0,35v45c0,5.5,4.5,10,10,10h80,c5.5,0,10-4.5,10-10V35C100,29.5,95.5,25,90,25z M50,80c-13.807,0-25-11.193-25-25c0-13.806,11.193-25,25-25,c13.805,0,25,11.194,25,25C75,68.807,63.805,80,50,80z M86.5,41.993c-1.932,0-3.5-1.566-3.5-3.5c0-1.932,1.568-3.5,3.5-3.5,c1.934,0,3.5,1.568,3.5,3.5C90,40.427,88.433,41.993,86.5,41.993z"
+                            />
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+        </form>
+
+
+        <div class="description" ng-if="picFileUpdated"  style="text-align:center; margin-top:20px">
+            <img style="height:300px" src="{{picFileUpdated}}"><br>
+            <img width=40px; height=40px; ng-style="{'visibility': showSpinner ? 'visible' : 'hidden'}" src="assets/images/spinner.gif">
+        </div>
+
+        <div class="row prediction" ng-repeat="pred in p.predictions">
+            <div class="col-xs-2 col-lg-2 emotion-section">
+                <div style="margin: auto">
+                    <img class="image-prediction" ng-src="{{pred.face}}">
+                </div>
+            </div>
+            <div class="col-xs-5 col-lg-5 emotion-section">
+                <div class="row emotion-container" ng-repeat="em in positiveEmotions">
+                    <div class="text-emotion-container" style="background-color:{{colorDictionnary[em][0]}}; color:{{colorDictionnary[em][1]}}; ">
+                        <span class="text-emotion">{{em}}</span>
+                    </div>
+                    <div class="bar-container">
+                        <div class="scoring-positive" style="width:{{pred.emotion[em]*100}}%; background-color:{{colorDictionnary[em][0]}}"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-xs-5 col-lg-5 emotion-section">
+                <div class="row emotion-container" ng-repeat="em in negativeEmotions">
+                    <div class="text-emotion-container" style="background-color:{{colorDictionnary[em][0]}}; color:{{colorDictionnary[em][1]}}; >
+                        <span class="text-emotion">{{em}}</span>
+                    </div>
+                    <div class="bar-container">
+                        <div class="scoring-positive"  style="width:{{pred.emotion[em]*100}}%; background-color:{{colorDictionnary[em][0]}}"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="description" style="margin-top: 20px;">
+            <p>
+                <b>Upload your own picture (jpeg) or use a sample:</b>
+            </p>
+            <div class="row images_test">
+                <img class="col-xs-4 col-lg-2 image_test" ng-click="updateImage(img.url)" ng-src="{{img.url}}" ng-repeat="img in test_images">
+            </div>
+
+            <p>
+                <b>What is this?</b>
+            </p>
+                <p>This is a Convolutional Neural Network (CNN) model trained using <a href="https://github.com/Microsoft/FERPlus">FER+ dataset</a> to recognize
+                    8 different emotion in faces - anger, contempt, fear, disgust, happiness, neutral, sadness, surprise. The model was proposed in <a href="https://arxiv.org/abs/1608.01041">Barsoum et. al.</a>,
+                    trained with <a href="https://github.com/Microsoft/CNTK">MS Cognitive Toolkit</a> and exported to the <a href="https://github.com/onnx/onnx">Open Neural Network eXchange (ONNX)]</a> format.
+                    This model is currently deployed using <a href="https://github.com/awslabs/mxnet-model-server"> MXNet Model Server (MMS)</a> hosted on <a href="https://aws.amazon.com/fargate/ ">AWS Fargate</a>.</p>
+
+            <p>The code for the web demo of the model can be found <a href="https://github.com/thomasdelteil/FacialEmotionRecognition_MXNet">here</a>, training code <a href="https://github.com/TalkAI/facial-emotion-recognition-gluon">here</a></p>
+
+            <p>
+                <b>How does it work?</b>
+            </p>
+            <ul>
+                <div style="text-align: center">
+                    <img style="width: 100%" src="assets/images/vggnet.jpg"/>
+                    <p  style="text-align: center"><i>Figure 1: Working of the Emotion FER+ demo.</i></p>
+                </div>
+
+                <p>Emotion recognition is an image classification problem. <a href="https://docs.opencv.org/3.4.1/d7/d8b/tutorial_py_face_detection.html">Haar-cascade detection</a> from the OpenCV library is first used to extract the faces in the image.
+                The extracted faces are converted into 64x64 grayscale images and passed to a <a href="https://github.com/Microsoft/FERPlus">custom VGGNet model</a>.
+                Performing a softmax on the output of the final layer of the VGGNet produces a probability
+                distribution on 8 emotion labels, neutral,  happiness,  surprise,  sadness,  anger,  disgust,  fear and contempt.
+                </p>
+                <div style="text-align: center">
+                    <img src="assets/images/ce_loss.png"/>
+                    <p  style="text-align: center"><i>Equation 1: <a href="https://arxiv.org/abs/1608.01041">Cross entropy loss</a></i><p>
+                </div>
+                <p>The <a href="https://arxiv.org/abs/1608.01041">Emotion FER+ model</a>  is trained to minimize the cross entropy loss presented in Equation 1
+                where the label distribution is the target. In Equation 1, for each image <i>i</i> of the <i>N</i> images and each label
+                <i>k</i> of the 8 labels, <i>p</i> is a binary value indicating whether the image belongs to that label (1) or not (0) and `q`
+                is the model's guess of the probability that the image belongs to that label. <br>
+                </p>
+                <p><a href="https://github.com/TalkAI/facial-emotion-recognition-gluon">Click here for a detailed tutorial on using the FER+ model with MXNet Gluon</a>
+            </ul>
+
+            <p>
+                <b>Resources</b>
+            </p>
+            <ul>
+                <li>
+                    <a href="https://github.com/TalkAI/facial-emotion-recognition-gluon">Training Code</a>
+                </li>
+                <li>
+                    <a href="https://github.com/apache/incubator-mxnet">MXNet Github Repo</a>
+                </li>
+                <li>
+                    <a href="https://github.com/awslabs/mxnet-model-server/tree/master/docker">Configuring Docker container for MMS</a>
+                </li>
+                <li>
+                    <a href="https://github.com/awslabs/mxnet-model-server/blob/master/docs/mms_on_fargate.md">Serverless Inference with MMS on Fargate</a>
+                </li>
+                <li>
+                    <a href="https://docs.opencv.org/3.4.1/d7/d8b/tutorial_py_face_detection.html">Facial detection using Haarcascades</a>
+                </li>
+                <li>
+                    <a href="https://medium.com/apache-mxnet/mxnet-gluon-in-60-minutes-3d49eccaf266">MXNet Gluon 60 minutes crash course:</a> Get started with MXNet Gluon in this 60 minutes crash
+                    course
+                </li>
+                <li>
+                    Icons made by
+                    <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by
+                    <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0"
+                        target="_blank">CC 3.0 BY</a>
+                </li>
+
+            </ul>
+            <p>
+                <b>Acknowledgement</b>
+            </p>
+            <ul>
+                <li>Demo based on <a href="https://github.com/codewithsk">SK</a>'s <a href="https://s3.amazonaws.com/fer.mxnet-demos.ai/index.html">work</a></li>
+                <li>MXNet training code by <a href="https://github.com/lupesko">Hagay Lupesko</a> and <a href="https://github.com/sandeep-krishnamurthy/">Sandeep Krishnamurthy</a></li>
+            </ul>
+            <p>
+                <b>Questions?</b>
+            </p>
+            <ul>
+                <li>Create an issue on the
+                    <a href="https://github.com/TalkAI/facial-emotion-recognition-gluon">tutorial github repo</a>
+                </li>
+                <li>Reach out on
+                    <a href="https://twitter.com/thdelteil/">twitter</a>,
+                    <a href="https://www.linkedin.com/in/thomasdelteil/">linkedin</a> or
+                    <a href="https://github.com/ThomasDelteil">github</a>
+                </li>
+            </ul>
+
+            <a style="float: right; margin-right: 10px;" href="https://github.com/thomasdelteil">
+                <img src="https://avatars2.githubusercontent.com/u/3716307?s=460&amp;v=4" style="border-radius:50%; margin: 20px"
+                    width="50px" height="50px">Demo built by Thomas Delteil</a>
+        </div>
+    </div>
+</body>
+
+</html>
