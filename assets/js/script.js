@@ -84,11 +84,17 @@ app.controller('fileController', ['$scope', '$http', '$timeout', '$httpParamSeri
                         $scope.p["predictions"] = [];
                         $timeout(function() {
                             $scope.p["predictions"] = response.data.prediction;
+                            if (response.data.prediction.length == 0) {
+                                $scope.errorMessage = "No faces detected on this image";
+                            } else {
+                                $scope.errorMessage = "";
+                            }
                         })
                     }
 
                 }, function (response) {
                     $scope.showSpinner = false;
+                    $scope.errorMessage = "There was an error with your request";
                     console.log(response);
                 }, function (evt) {
                     $scope.progress = parseInt(100.0 * evt.loaded / evt.total);

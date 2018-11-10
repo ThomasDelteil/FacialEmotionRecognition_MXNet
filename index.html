@@ -73,6 +73,7 @@
         <div class="description" ng-if="picFileUpdated"  style="text-align:center; margin-top:20px">
             <img style="height:300px" src="{{picFileUpdated}}"><br>
             <img width=40px; height=40px; ng-style="{'visibility': showSpinner ? 'visible' : 'hidden'}" src="assets/images/spinner.gif">
+            <p style="color:red" ng-if="errorMessage">{{errorMessage}}</p>
         </div>
 
         <div class="row prediction" ng-repeat="pred in p.predictions">
