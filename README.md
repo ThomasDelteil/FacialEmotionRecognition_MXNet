@@ -1,6 +1,6 @@
 # FacialEmotionRecognition_MXNet
 
-Demo for facial emotion recognition using MXNet and MXNet Model Server
+[Demo website](https://thomasdelteil.github.io/FacialEmotionRecognition_MXNet/) for facial emotion recognition using MXNet and MXNet Model Server
 
 Code for the demo in the `gh-pages` branch.
 
