@@ -50,7 +50,7 @@ li {
     float:left;
     color: white;
     text-align: right;
-    height:22%;
+    height:20px;
      -webkit-transition: width 1s;/* Safari */
     transition: width 1s;
 }
