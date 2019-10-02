@@ -66,7 +66,7 @@ app.controller('fileController', ['$scope', '$http', '$timeout', '$httpParamSeri
                 $scope.showSpinner = true;
                 $http({
                     method: 'POST',
-                    url: 'https://mxnet-demo-fer-608601478.us-east-1.elb.amazonaws.com/emotion_ferplus/predict',
+                    url: 'https://78kcwfkku7.execute-api.us-east-1.amazonaws.com/dev/emotion',
                     data: form,
                     headers: { 'Content-Type': undefined },
                 }).then(function (response) {
